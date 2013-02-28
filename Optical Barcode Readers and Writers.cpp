@@ -118,7 +118,7 @@ int main()
    dm.generateImagefromText();
    dm.displayTextToConsole();
    dm.displayImageToConsole();
-   
+
    return 0;
 }
 
@@ -269,6 +269,19 @@ void DataMatrix::scan(const BarcodeImage &bc)
    actualWidth = computeSignalWidth();
    actualHeight = computeSignalHeight();   
 }
+
+void DataMatrix::readText(const string &text)
+{
+   BarcodeImage clear;
+
+   image = clear;
+   actualWidth = 0;
+   actualHeight = 0;
+   if(text.length() < 0 || text.length() >= MAX_STRING_LENGTH)
+      return;
+   else
+      this->text = text;
+}
    
 int DataMatrix::computeSignalWidth()
 {
@@ -291,34 +304,21 @@ int DataMatrix::computeSignalHeight()
 
    return returnVal;
 }
-
-void DataMatrix::readText(const string &text)
-{
-   BarcodeImage clear;
-
-   image = clear;
-   actualWidth = 0;
-   actualHeight = 0;
-   if(text.length() < 1 || text.length() >= MAX_STRING_LENGTH)
-      return;
-   else
-      this->text = text;
-}
    
 void DataMatrix::generateImagefromText()
 {
    int height = 0, bitVal = 0;
-   actualHeight = 10;
-   actualWidth = 2;
 
-   for(int k = 0; k < actualHeight; k++)
+   for(int k = 0; k < 10; k++)
       image.setPixel(image.MAX_HEIGHT-1-k, 0, true);
 
-   for(int col = 1; col <= text.length(); col++)
+   actualHeight = computeSignalHeight();
+
+   for(int col = 1; col <= text.length()+1; col++)
    {
-      actualWidth++;
       image.setPixel(image.MAX_HEIGHT - 1, col, true);
       image.setPixel(image.MAX_HEIGHT - actualHeight, (2*col), true);
+
       for(int k = 0; k < 8; k++)
       {
          height = (image.MAX_HEIGHT-2) - k;
@@ -327,6 +327,8 @@ void DataMatrix::generateImagefromText()
       }
    }
 
+   actualWidth = computeSignalWidth();
+   
    for(int j = 0; j < 5; j++)
       image.setPixel(image.MAX_HEIGHT-1-(2*j), actualWidth-1, true);
 }
